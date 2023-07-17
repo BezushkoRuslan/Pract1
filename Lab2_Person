@@ -1,84 +1,52 @@
 require 'date'
-require_relative 'ConsoleInput'
-require_relative 'Validation'
 
-class Person
-  include ConsoleInput
-  include Validation
-
-  attr_reader :first_name, :last_name, :inn, :birth_date
-
-  def initialize(first_name, last_name, inn, birth_date)
-    self.first_name = first_name
-    self.last_name = last_name
-    self.inn = inn
-    self.birth_date = birth_date
+module ConsoleInput
+  def self.get_string(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input unless input.empty?
+    end
   end
 
-  def full_name
-    "#{first_name} #{last_name}"
+  def self.get_integer(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input.to_i if input.match?(/\A\d+\z/)
+    end
   end
 
-  def age
-    now = Date.today
-    now.year - birth_date.year - ((now.month > birth_date.month || (now.month == birth_date.month && now.day >= birth_date.day)) ? 0 : 1)
+  def self.get_float(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input.to_f if input.match?(/\A\d+(\.\d+)?\z/)
+    end
   end
 
-  def to_s
-    "#{full_name}, INN: #{inn}, Birth Date: #{birth_date.strftime('%Y-%m-%d')}"
+  def self.get_date(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return Date.parse(input) rescue nil
+    end
   end
 
-  def first_name=(new_first_name)
-    validate_name(new_first_name, 'First Name')
-    @first_name = new_first_name
+  def self.get_datetime(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return DateTime.parse(input) rescue nil
+    end
   end
 
-  def last_name=(new_last_name)
-    validate_name(new_last_name, 'Last Name')
-    @last_name = new_last_name
-  end
-
-  def inn=(new_inn)
-    validate_inn(new_inn)
-    @inn = new_inn
-  end
-
-  def birth_date=(new_birth_date)
-    validate_birth_date(new_birth_date)
-    @birth_date = Date.parse(new_birth_date)
-  end
-
-  private
-
-  def validate_name(name, field_name)
-    raise ArgumentError, "Invalid #{field_name}" unless valid_name?(name)
-  end
-
-  def validate_inn(inn)
-    raise ArgumentError, 'Invalid INN' unless valid_inn?(inn)
-  end
-
-  def validate_birth_date(date)
-    raise ArgumentError, 'Invalid birth date format' unless valid_date_format?(date)
-    raise ArgumentError, 'Birth date must be in the past' unless valid_birth_date?(date)
+  def self.get_bool(prompt)
+    loop do
+      print prompt
+      input = gets.chomp.downcase
+      return true if input == 'y' || input == 'yes'
+      return false if input == 'n' || input == 'no'
+    end
   end
 end
-
-# Приклад використання класу Person
-
-person = Person.new('John', 'Doe', '1234567890', '1990-01-01')
-
-puts person.full_name # Виведе "John Doe"
-puts person.age # Виведе вік на основі поточної дати
-puts person.to_s # Виведе повну інформацію про особу
-
-# Приклад зміни значень атрибутів
-
-person.first_name = 'Jane'
-person.last_name = 'Smith'
-person.inn = '0987654321'
-person.birth_date = '1995-05-05'
-
-puts person.full_name # Виведе "Jane Smith"
-puts person.age # Виведе оновлений вік на основі поточної дати
-puts person.to_s # Виведе оновлену повну інформацію про особу
