@@ -1,39 +1,54 @@
+require 'date'
+
 module ConsoleInput
-  def self.get_input(prompt)
-    print prompt
-    gets.chomp
-  end
+  module_function
 
-  def self.get_integer(prompt)
-    input = get_input(prompt)
-    begin
-      Integer(input)
-    rescue ArgumentError
-      puts "Invalid input. Please enter an integer."
-      get_integer(prompt)
+  def get_string(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input unless input.empty?
     end
   end
 
-  def self.get_float(prompt)
-    input = get_input(prompt)
-    begin
-      Float(input)
-    rescue ArgumentError
-      puts "Invalid input. Please enter a floating-point number."
-      get_float(prompt)
+  def get_integer(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input.to_i if input.match?(/\A\d+\z/)
     end
   end
 
-  def self.get_boolean(prompt)
-    input = get_input(prompt).downcase
-    case input
-    when "true", "yes", "1"
-      true
-    when "false", "no", "0"
-      false
-    else
-      puts "Invalid input. Please enter 'true' or 'false'."
-      get_boolean(prompt)
+  def get_float(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input.to_f if input.match?(/\A\d+(\.\d+)?\z/)
+    end
+  end
+
+  def get_date(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return Date.parse(input) rescue nil
+    end
+  end
+
+  def get_datetime(prompt)
+    loop do
+      print prompt
+      input = gets.chomp
+      return DateTime.parse(input) rescue nil
+    end
+  end
+
+  def get_bool(prompt)
+    loop do
+      print prompt
+      input = gets.chomp.downcase
+      return true if input == 'y' || input == 'yes'
+      return false if input == 'n' || input == 'no'
     end
   end
 end
